@@ -3,7 +3,7 @@ SAMPLES = ['ERR2027899']
 rule all:
     input:
         "outputs/trim/ERR2027899_R1.trim.fq.gz",
-        expand("outputs/nbhd_map/tig{tig}_nbhd_reads.sam", tig=['32', '52', '85'])
+        expand("outputs/megahit/tig{tig}.contigs.fa", tig=['32', '52', '85'])
 
 rule adapter_trim:
     input:
@@ -56,3 +56,31 @@ rule map_nbhd_reads:
      shell: '''
           bwa mem -t {threads} {input.query} {input.reads} > {output}
      '''
+
+rule sam_unmapped_reads:
+    input: "outputs/nbhd_map/{sample}_nbhd_reads.sam"
+    output: "outputs/nbhd_map/{sample}_unmapped.sam"
+    conda: 'env.yml'
+    shell:'''
+         samtools view -f 4 {input} > {output}
+    '''
+
+rule unmapped_reads_to_fasta:
+    input: "outputs/nbhd_map/{sample}_unmapped.sam"
+    output: "outputs/nbhd_map/{sample}_unmapped.fa"
+    conda: 'env.yml'
+    shell:'''
+         samtools fasta {input} > {output}
+    '''
+
+rule megahit_unmapped_reads:
+    input: "outputs/nbhd_map/{sample}_unmapped.fa"
+    output: "outputs/megahit/{sample}.contigs.fa"
+    conda: 'env.yml'
+    shell:'''
+         megahit -r {input} --min-contig-len 142 \
+             --out-dir {wildcards.sample}_megahit \
+             --out-prefix {wildcards.sample}
+    mv {wildcards.sample}_megahit/{wildcards.sample}.contigs.fa {output}
+    rm -rf {wildcards.sample}_megahit
+    '''

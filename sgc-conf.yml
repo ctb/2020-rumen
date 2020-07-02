@@ -1,0 +1,16 @@
+catlas_base: rumen_sgc
+input_sequences:
+- outputs/trim/ERR2027899_o1.trim.fq.gz
+- outputs/trim/ERR2027899_o2.trim.fq.gz
+- outputs/trim/ERR2027899_R1.trim.fq.gz
+- outputs/trim/ERR2027899_R2.trim.fq.gz
+ksize: 31
+radius: 1
+search:
+- queries/tig32.fa
+- queries/tig52.fa
+- queries/tig85.fa
+searchquick:
+- queries/tig32.fa
+shadow_ratio_maxsize: 1000
+
